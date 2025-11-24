@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Scoreboard By ACHI </title>
+<link rel="stylesheet" href="https://unpkg.com/feather-icons/dist/feather.min.css">
+
+<style>
+    body {
+        margin: 0;
+        padding: 0;
+        background: #000;
+        overflow: hidden;
+        font-family: "SF Pro Display", Arial, sans-serif;
+        touch-action: none;
+    }
+
+    /* WRAPPER UTAMA YANG BISA DIPUTAR */
+    #screen {
+        position: fixed;
+        width: 100vw;
+        height: 100vh;
+        top: 0;
+        left: 0;
+        transform-origin: center center;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    /* VALID LANDSCAPE LAYOUT */
+    .landscape {
+        width: 100vw;
+        height: 100vh;
+        display: flex;
+        flex-direction: row;
+    }
+
+    .player {
+        flex: 1;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+        position: relative;
+        color: white;
+        overflow: hidden;
+    }
+
+    .left { background: linear-gradient(135deg,#7107f6,#d667f8,#00c8ff); }
+    .right { background: linear-gradient(135deg,#ff0033,#ff1b6a,#ff4f9a); }
+
+    .gloss {
+        position: absolute;
+        top: -15%;
+        left: 0;
+        width: 100%;
+        height: 50%;
+        background: rgba(255,255,255,0.2);
+        filter: blur(55px);
+        transform: skewY(-15deg);
+    }
+
+    .name {
+        font-size: 40px;
+        font-weight: 700;
+        margin-bottom: 20px;
+    }
+
+    .score {
+        font-size: 180px;
+        font-weight: 900;
+        text-shadow: 0 10px 35px rgba(0,0,0,0.6);
+        transition: 0.3s ease;
+    }
+
+    .glow {
+        text-shadow: 
+            0 0 25px #fff,
+            0 0 55px #fff,
+            0 0 85px #fff;
+    }
+
+    /* RESET BUTTON — SELALU DI TENGAH */
+    .reset {
+        position: fixed;
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(255,255,255,0.25);
+        backdrop-filter: blur(16px);
+        padding: 12px 28px;
+        border-radius: 16px;
+        font-size: 22px;
+        border: 1px solid rgba(255,255,255,0.35);
+        color: white;
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        font-weight: 600;
+        z-index: 9999;
+        cursor: pointer;
+        box-shadow: 0 5px 18px rgba(0,0,0,0.4);
+    }
+    .reset:active { transform: translateX(-50%) scale(0.92); }
+</style>
+</head>
+
+<body>
+
+<div class="reset" onclick="resetScore()">
+    <i data-feather="refresh-ccw"></i> RESET
+</div>
+
+<!-- SCREEN WRAPPER yang akan diputar otomatis -->
+<div id="screen">
+    <div class="landscape">
+        <div class="player left" id="p1">
+            <div class="gloss"></div>
+            <div class="name" contenteditable="true">Player 1</div>
+            <div class="score" id="score1">0</div>
+        </div>
+
+        <div class="player right" id="p2">
+            <div class="gloss"></div>
+            <div class="name" contenteditable="true">Player 2</div>
+            <div class="score" id="score2">0</div>
+        </div>
+    </div>
+</div>
+
+<script src="https://unpkg.com/feather-icons"></script>
+<script>feather.replace();</script>
+
+<script>
+/* AUTOFULLSCREEN */
+document.addEventListener("click", () => {
+    document.documentElement.requestFullscreen?.();
+}, { once: true });
+
+/* AUTO-DETEKSI ROTASI */
+function checkRotate() {
+    const screenDiv = document.getElementById("screen");
+
+    if (window.innerHeight > window.innerWidth) {
+        // PORTRAIT → paksa landscape
+        screenDiv.style.transform = "rotate(90deg) scale(1)";
+        screenDiv.style.width = "100vh";
+        screenDiv.style.height = "100vw";
+    } else {
+        // LANDSCAPE normal
+        screenDiv.style.transform = "rotate(0deg) scale(1)";
+        screenDiv.style.width = "100vw";
+        screenDiv.style.height = "100vh";
+    }
+}
+window.addEventListener("resize", checkRotate);
+window.addEventListener("orientationchange", checkRotate);
+checkRotate();
+
+/* Score Animation */
+function animateScore(el, type) {
+    if (type === "add") {
+        el.style.transform = "scale(1.25)";
+        el.classList.add("glow");
+    } else {
+        el.style.transform = "translateY(-25px) scale(0.93)";
+    }
+    setTimeout(() => {
+        el.style.transform = "scale(1)";
+        el.classList.remove("glow");
+    }, 280);
+}
+
+/* TOUCH CONTROL */
+function setupTouch(id, score) {
+    let area = document.getElementById(id);
+    let el = document.getElementById(score);
+    let startY = 0;
+
+    area.addEventListener("touchstart", e => startY = e.touches[0].clientY);
+
+    area.addEventListener("touchend", e => {
+        let dy = startY - e.changedTouches[0].clientY;
+
+        if (Math.abs(dy) < 25) {
+            el.innerText = +el.innerText + 1;
+            animateScore(el, "add");
+        } else if (dy > 35) {
+            if (+el.innerText > 0) el.innerText--;
+            animateScore(el, "minus");
+        }
+    });
+}
+
+setupTouch("p1", "score1");
+setupTouch("p2", "score2");
+
+function resetScore() {
+    score1.innerText = 0;
+    score2.innerText = 0;
+}
+</script>
+
+</body>
+</html>
