@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+<title>Badminton Achi</title>
+
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#000000">
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+:root{
+  --purple1:#a78bfa;
+  --purple2:#7c3aed;
+  --pink:#ec4899;
+
+  --bg-dark:
+    radial-gradient(1200px 800px at 20% -10%, rgba(124,58,237,.35), transparent 55%),
+    radial-gradient(900px 700px at 110% 110%, rgba(236,72,153,.25), transparent 55%),
+    linear-gradient(120deg,#140a2b,#060012,#060012);
+
+  --bg-light:
+    radial-gradient(1200px 800px at 10% 0%, rgba(124,58,237,.18), transparent 55%),
+    radial-gradient(900px 700px at 110% 110%, rgba(236,72,153,.14), transparent 55%),
+    linear-gradient(120deg,#f6f2ff,#ffffff);
+
+  --text-dark:#fff;
+  --text-light:#0b0b12;
+
+  --glass-dark: rgba(255,255,255,.10);
+  --glass-light: rgba(255,255,255,.72);
+
+  --stroke-dark: rgba(255,255,255,.14);
+  --stroke-light: rgba(0,0,0,.08);
+
+  --shadow-dark: 0 40px 90px rgba(0,0,0,.55);
+  --shadow-light: 0 28px 70px rgba(0,0,0,.16);
+
+  --ease: cubic-bezier(.22,.9,.25,1);
+}
+
+body{
+  margin:0;
+  font-family:Inter,system-ui;
+  background:var(--bg-dark);
+  color:var(--text-dark);
+  overflow-x:hidden;
+  transition: background .55s var(--ease), color .55s var(--ease);
+}
+body.light{
+  background:var(--bg-light);
+  color:var(--text-light);
+}
+
+/* ====== SUBTLE MOVING AURORA ====== */
+.aurora{
+  position:fixed; inset:-40%;
+  background: conic-gradient(from 180deg,
+    rgba(167,139,250,.18),
+    rgba(124,58,237,.22),
+    rgba(236,72,153,.18),
+    rgba(167,139,250,.18));
+  filter: blur(90px);
+  opacity:.58;
+  animation: aurora 18s var(--ease) infinite;
+  z-index:0;
+  pointer-events:none;
+}
+@keyframes aurora{
+  0%{transform:translate(-8%, -6%) rotate(0deg) scale(1.05)}
+  50%{transform:translate(8%, 6%) rotate(180deg) scale(1.12)}
+  100%{transform:translate(-8%, -6%) rotate(360deg) scale(1.05)}
+}
+
+/* ===== TOP BAR ===== */
+.top{
+  position:fixed; top:0; left:0; width:100%;
+  padding:16px 18px;
+  display:flex; justify-content:space-between; align-items:center;
+  z-index:20;
+}
+.menu{
+  font-size:26px; cursor:pointer;
+  padding:10px 12px;
+  border-radius:14px;
+  background:rgba(255,255,255,.07);
+  border:1px solid rgba(255,255,255,.10);
+  backdrop-filter: blur(18px) saturate(160%);
+  -webkit-backdrop-filter: blur(18px) saturate(160%);
+}
+body.light .menu{
+  background:rgba(255,255,255,.6);
+  border:1px solid rgba(0,0,0,.06);
+}
+
+/* ===== iOS Toggle ===== */
+.toggle{
+  width:56px; height:32px;
+  border-radius:999px;
+  background:rgba(255,255,255,.18);
+  border:1px solid rgba(255,255,255,.18);
+  backdrop-filter: blur(18px) saturate(170%);
+  -webkit-backdrop-filter: blur(18px) saturate(170%);
+  position:relative;
+  cursor:pointer;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.06);
+  overflow:hidden;
+}
+.toggle::before{
+  content:'';
+  position:absolute; inset:0;
+  background: linear-gradient(90deg, rgba(167,139,250,.40), rgba(124,58,237,.30));
+  opacity:.22;
+}
+body.light .toggle{
+  background:rgba(255,255,255,.8);
+  border:1px solid rgba(0,0,0,.08);
+}
+.knob{
+  width:26px; height:26px;
+  border-radius:50%;
+  position:absolute; top:2.5px; left:3px;
+  background: radial-gradient(circle at 35% 30%, rgba(255,255,255,.98), rgba(255,255,255,.75));
+  box-shadow: 0 8px 18px rgba(0,0,0,.25);
+  transition: transform .45s var(--ease);
+}
+body.light .knob{ transform: translateX(24px); }
+
+/* ===== MAIN ===== */
+.main{
+  position:relative; z-index:5;
+  padding:96px 20px 44px;
+  max-width:430px; margin:0 auto;
+}
+
+/* ===== BADGE ===== */
+.badge{
+  display:inline-flex; align-items:center; gap:8px;
+  padding:8px 14px; border-radius:999px;
+  background: linear-gradient(90deg, rgba(167,139,250,.35), rgba(124,58,237,.28));
+  border:1px solid rgba(255,255,255,.14);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  font-size:13px;
+  margin-bottom:16px;
+}
+body.light .badge{
+  background: linear-gradient(90deg, rgba(167,139,250,.18), rgba(124,58,237,.12));
+  border:1px solid rgba(0,0,0,.06);
+}
+
+/* ===== HERO PHOTO (LANDSCAPE) ===== */
+.hero-photo{
+  display:flex;
+  justify-content:center;
+  margin:18px 0 28px;
+  position:relative;
+  z-index:6;
+}
+
+.photo-frame{
+  width:260px;          /* lebih lebar */
+  height:150px;         /* lebih pendek */
+  padding:6px;
+  border-radius:32px;
+  background:linear-gradient(135deg,
+    rgba(167,139,250,.95),
+    rgba(124,58,237,.9),
+    rgba(236,72,153,.85)
+  );
+  box-shadow:
+    0 28px 58px rgba(0,0,0,.55),
+    0 0 48px rgba(124,58,237,.55);
+  animation: photoFloat 6s ease-in-out infinite;
+  transition: box-shadow .5s var(--ease), filter .5s var(--ease);
+  position:relative;
+}
+
+/* AUTO ADAPT FOTO APA PUN */
+.photo-frame img{
+  width:100%;
+  height:100%;
+  object-fit:cover;        /* landscape tetap penuh */
+  object-position:center;  /* fokus tengah */
+  border-radius:26px;
+  display:block;
+}
+
+.photo-frame::after{
+  content:'';
+  position:absolute;
+  inset:-30%;
+  background: radial-gradient(circle, rgba(124,58,237,.45), transparent 65%);
+  filter: blur(40px);
+  z-index:-1;
+  opacity:.95;
+}
+
+/* ===== CARD ===== */
+.card{
+  position:relative;
+  border-radius:30px;
+  padding:30px;
+  background:var(--glass-dark);
+  border:1px solid var(--stroke-dark);
+  backdrop-filter: blur(36px);
+  -webkit-backdrop-filter: blur(36px);
+  box-shadow: var(--shadow-dark);
+  overflow:hidden;
+  transform-style:preserve-3d;
+  transition: background .55s var(--ease), border .55s var(--ease), box-shadow .55s var(--ease);
+}
+body.light .card{
+  background:var(--glass-light);
+  border:1px solid var(--stroke-light);
+  box-shadow: var(--shadow-light);
+}
+
+/* Gloss sweep */
+.card::before{
+  content:'';
+  position:absolute; inset:-60%;
+  background: linear-gradient(120deg, transparent, rgba(255,255,255,.30), transparent);
+  transform: translateX(-55%);
+  animation: sweep 6.6s var(--ease) infinite;
+  pointer-events:none;
+}
+@keyframes sweep{
+  0%{transform:translateX(-65%) rotate(10deg)}
+  55%{transform:translateX(65%) rotate(10deg)}
+  100%{transform:translateX(65%) rotate(10deg)}
+}
+
+/* Glow border */
+.card::after{
+  content:'';
+  position:absolute; inset:0;
+  border-radius:30px;
+  padding:1px;
+  background: linear-gradient(120deg, rgba(167,139,250,.55), rgba(124,58,237,.35), rgba(236,72,153,.35));
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity:.55;
+  pointer-events:none;
+}
+
+h1{
+  margin:0 0 10px;
+  font-size:26px;
+  letter-spacing:.2px;
+}
+
+/* ===== DESC (HOLDER + TYPING) ===== */
+.desc{
+  font-size:15px;
+  line-height:1.7;
+  color: rgba(255,255,255,.88);
+  margin:0 0 22px;
+  opacity:0;
+  transform: translateY(14px);
+  animation: fadeUp 1.2s var(--ease) forwards;
+  animation-delay:.4s;
+  position:relative;
+  min-height:54px; /* biar layout gak loncat pas typing */
+}
+body.light .desc{
+  color: rgba(10,10,16,.80);
+}
+
+.desc::after{
+  content:'';
+  position:absolute; left:0; bottom:-8px;
+  width:100%; height:2px;
+  border-radius:99px;
+  background: linear-gradient(90deg,
+    rgba(167,139,250,.9),
+    rgba(124,58,237,.85),
+    rgba(236,72,153,.7)
+  );
+  opacity:.35;
+  animation: glowLine 2.8s ease-in-out infinite;
+}
+
+@keyframes glowLine{ 0%{opacity:.18} 50%{opacity:.6} 100%{opacity:.18} }
+@keyframes fadeUp{ to{opacity:1; transform:none} }
+
+/* typing cursor */
+.cursor{
+  display:inline-block;
+  width:10px;
+  margin-left:2px;
+  color:rgba(255,255,255,.9);
+  animation: blink .9s step-end infinite;
+}
+body.light .cursor{ color: rgba(10,10,16,.75); }
+@keyframes blink{
+  50%{opacity:0}
+}
+
+.info{
+  background:rgba(255,255,255,.08);
+  border:1px solid rgba(255,255,255,.12);
+  padding:16px;
+  border-radius:18px;
+  margin-bottom:12px;
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+}
+body.light .info{
+  background:rgba(255,255,255,.55);
+  border:1px solid rgba(0,0,0,.06);
+}
+
+.ig{
+  margin-top:18px;
+  display:flex; justify-content:center; align-items:center;
+  padding:16px;
+  border-radius:18px;
+  text-decoration:none;
+  font-weight:800;
+  color:#fff;
+  background: linear-gradient(45deg,#feda75,#d62976,#962fbf);
+  position:relative;
+  overflow:hidden;
+  transform: translateZ(10px);
+}
+.ig::before{
+  content:'';
+  position:absolute; inset:-40%;
+  background: linear-gradient(120deg, transparent, rgba(255,255,255,.35), transparent);
+  transform: translateX(-60%);
+  animation: btnSweep 4.6s var(--ease) infinite;
+}
+@keyframes btnSweep{
+  0%{transform:translateX(-70%) rotate(12deg)}
+  60%{transform:translateX(70%) rotate(12deg)}
+  100%{transform:translateX(70%) rotate(12deg)}
+}
+
+/* Press micro-interaction */
+.press{
+  transition: transform .18s ease, filter .18s ease;
+  position:relative;
+  overflow:hidden;
+}
+.press:active{
+  transform: scale(.985);
+  filter: brightness(1.06);
+}
+
+/* ===== Sidebar + Overlay (TRANSPARAN + SMOOTH + CLICK OUTSIDE FIX) ===== */
+.overlay{
+  position:fixed; inset:0;
+  background: rgba(0,0,0,.18);
+  backdrop-filter: blur(8px) saturate(120%);
+  -webkit-backdrop-filter: blur(8px) saturate(120%);
+  opacity:0;
+  pointer-events:none;
+  transition: opacity .35s ease;
+  z-index:25;
+}
+.overlay.active{
+  opacity:1;
+  pointer-events:auto;
+}
+
+.sidebar{
+  position:fixed; top:0; left:0;
+  width:78%; max-width:320px;
+  height:100%;
+  transform: translateX(-105%);
+  transition: transform .55s var(--ease);
+  z-index:30;
+  padding:28px;
+
+  background: rgba(255,255,255,.06);
+  border-right: 1px solid rgba(255,255,255,.10);
+  backdrop-filter: blur(60px) saturate(180%);
+  -webkit-backdrop-filter: blur(60px) saturate(180%);
+  box-shadow: 18px 0 60px rgba(0,0,0,.30);
+}
+body.light .sidebar{
+  background: rgba(255,255,255,.78);
+  border-right: 1px solid rgba(0,0,0,.06);
+  backdrop-filter: blur(38px) saturate(160%);
+  -webkit-backdrop-filter: blur(38px) saturate(160%);
+  box-shadow: 18px 0 55px rgba(0,0,0,.16);
+}
+.sidebar.active{ transform: translateX(0); }
+
+.side-title{
+  margin-top:28px;
+  font-weight:800;
+  letter-spacing:.2px;
+}
+
+.side-btn{
+  width:100%;
+  padding:15px 14px;
+  margin-top:14px;
+  border-radius:16px;
+  border:none;
+  font-weight:700;
+  color:#fff;
+  background: linear-gradient(90deg, var(--purple1), var(--purple2));
+  position:relative;
+  overflow:hidden;
+
+  /* TAMBAHAN PENTING */
+  display:block;          /* <a> jadi full button */
+  text-decoration:none;   /* hilangin garis link */
+  cursor:pointer;
+}
+
+/* ===== Ripple ===== */
+.ripple{
+  position:absolute;
+  border-radius:999px;
+  transform: translate(-50%, -50%);
+  pointer-events:none;
+  background: rgba(255,255,255,.35);
+  animation: ripple .55s ease-out forwards;
+  mix-blend-mode: screen;
+}
+@keyframes ripple{
+  from{ width:0; height:0; opacity:.6; }
+  to{ width:320px; height:320px; opacity:0; }
+}
+
+.copyright{
+  margin-top:28px;
+  text-align:center;
+  font-size:15px;
+  font-weight:600;
+
+  background: linear-gradient(
+    120deg,
+    rgb(255, 0, 0),
+    rgb(255, 120, 0),
+    rgb(255, 255, 0),
+    rgb(0, 255, 120),
+    rgb(0, 255, 255),
+    rgb(0, 120, 255),
+    rgb(120, 0, 255),
+    rgb(255, 0, 255),
+    rgb(255, 0, 0)
+  );
+
+  background-size: 1200% 1200%;
+  animation: rgbUltraSmooth 30s linear infinite;
+
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.copyright a{
+  color: inherit;
+  text-decoration:none;
+}
+
+@keyframes rgbUltraSmooth{
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+</style>
+</head>
+
+<body>
+<div class="aurora"></div>
+
+<!-- Overlay (tap outside to close sidebar) -->
+<div class="overlay" id="overlay"></div>
+
+<!-- Sidebar -->
+<aside class="sidebar" id="sidebar" aria-hidden="true">
+  <div class="side-title">Menu</div>
+
+  <a href="https://goodmintonachi.my.id/scoreboard.php"
+     class="side-btn press"
+     target="_blank" rel="noopener">
+    scoreboard online
+  </a>
+
+  <a href="https://github.com/scardbypass/Scoreboard-/blob/main/Scoreboard.apk"
+     class="side-btn press"
+     target="_blank" rel="noopener">
+    download scoreboard apk
+  </a>
+
+  <a href="https://drive.google.com/drive/folders/1L0TIXap8xybtRTpqF3gPzbJvtrswNsBR"
+     class="side-btn press"
+     target="_blank" rel="noopener">
+    Berkas Dokumentasi
+  </a>
+</aside>
+
+<!-- Top bar -->
+<header class="top">
+  <div class="menu press" id="btnMenu">⋮</div>
+  <div class="toggle press" id="themeToggle" role="switch" aria-checked="false" title="Mode Pagi/Malam">
+    <div class="knob"></div>
+  </div>
+</header>
+
+<main class="main">
+  <!-- ===============================
+       🔽 PWA INSTALL BOX (AMAN)
+       TIDAK MERUBAH LAYOUT
+       =============================== -->
+  <div id="pwaInstallBox" class="info"
+       style="display:none; position:relative;">
+    <b>📥 Aplikasi</b>
+    <div style="margin-top:6px; display:flex; align-items:center; gap:10px">
+      <button id="btnInstallPWA"
+        class="press"
+        style="
+          padding:10px 14px;
+          border-radius:12px;
+          border:none;
+          font-weight:700;
+          cursor:pointer;
+          background:linear-gradient(90deg,var(--purple1),var(--purple2));
+          color:#fff">
+        Install ke Home Screen
+      </button>
+      <span id="installHint" style="font-size:13px; opacity:.8">
+        Akses lebih cepat & hemat data
+      </span>
+    </div>
+  </div>
+  <!-- =============================== -->
+  <div class="badge">🏸 Badminton Achi</div>
+
+  <!-- FOTO DI TENGAH (bawah badge, sebelum card) -->
+  <div class="hero-photo">
+    <div class="photo-frame" id="photoFrame">
+      <img src="https://goodmintonachi.my.id/gambar.jpg" alt="Badminton Achi">
+    </div>
+  </div>
+
+  <section class="card" id="card">
+    <h1>Achi Persaudaraan</h1>
+
+    <!-- TYPING TEXT -->
+    <p class="desc" id="typingText"></p>
+
+    <div class="info">
+      <b>Jadwal Kegiatan</b><br>
+      Senin & Jum'at • 18:00–20:00 WIB
+    </div>
+
+    <a class="ig press" href="https://instagram.com/goodminton_achi" target="_blank" rel="noopener">
+      Follow Instagram @goodminton_achi
+    </a>
+  </section>
+</main>
+
+<script>
+/** ===== SETTINGS ===== **/
+
+/** ===== ELEMENTS ===== **/
+const sidebar = document.getElementById("sidebar");
+const overlay = document.getElementById("overlay");
+const btnMenu = document.getElementById("btnMenu");
+const themeToggle = document.getElementById("themeToggle");
+const card = document.getElementById("card");
+const photoFrame = document.getElementById("photoFrame");
+
+// OPTIONAL (biar gak error walau elemennya gak ada)
+const btnScroll = document.getElementById("btnScroll");
+const btnLogin  = document.getElementById("btnLogin");
+
+/** ===== Sidebar open/close (FIX) ===== **/
+function openSide(){
+  sidebar.classList.add("active");
+  overlay.classList.add("active");
+  sidebar.setAttribute("aria-hidden","false");
+}
+function closeSide(){
+  sidebar.classList.remove("active");
+  overlay.classList.remove("active");
+  sidebar.setAttribute("aria-hidden","true");
+}
+function toggleSide(){
+  sidebar.classList.contains("active") ? closeSide() : openSide();
+}
+
+btnMenu.addEventListener("click", toggleSide);
+overlay.addEventListener("click", closeSide);
+
+/** ===== Sidebar buttons (SAFE) ===== **/
+if (btnScroll) {
+  btnScroll.addEventListener("click", () => {
+    window.scrollTo({ top: document.body.scrollHeight, behavior:"smooth" });
+    closeSide();
+  });
+}
+
+if (btnLogin && typeof LOGIN_URL !== "undefined") {
+  btnLogin.addEventListener("click", () => location.href = LOGIN_URL);
+}
+
+/** ===== Theme toggle ===== **/
+themeToggle.addEventListener("click", () => {
+  document.body.classList.toggle("light");
+  themeToggle.setAttribute("aria-checked", document.body.classList.contains("light") ? "true" : "false");
+});
+
+/** ===== Ripple effect ===== **/
+function addRipple(e){
+  const el = e.currentTarget;
+  const rect = el.getBoundingClientRect();
+  const ripple = document.createElement("span");
+  ripple.className = "ripple";
+  ripple.style.left = (e.clientX - rect.left) + "px";
+  ripple.style.top  = (e.clientY - rect.top) + "px";
+  el.appendChild(ripple);
+  ripple.addEventListener("animationend", () => ripple.remove());
+}
+document.querySelectorAll(".press").forEach(el=>{
+  el.addEventListener("click", addRipple);
+});
+
+/** ===== Card parallax tilt (STABLE) ===== **/
+function clamp(n,min,max){ return Math.max(min, Math.min(max,n)); }
+function setTilt(x, y){
+  const rX = clamp((y - 0.5) * -10, -10, 10);
+  const rY = clamp((x - 0.5) * 10, -10, 10);
+  card.style.transform = `rotateX(${rX}deg) rotateY(${rY}deg)`;
+}
+function resetTilt(){
+  card.style.transform = "rotateX(0deg) rotateY(0deg)";
+}
+window.addEventListener("mousemove", (e)=>{
+  const rect = card.getBoundingClientRect();
+  const x = (e.clientX - rect.left) / rect.width;
+  const y = (e.clientY - rect.top) / rect.height;
+  if(x>=0 && x<=1 && y>=0 && y<=1) setTilt(x,y);
+  else resetTilt();
+});
+card.addEventListener("touchmove", (e)=>{
+  const t = e.touches[0];
+  const rect = card.getBoundingClientRect();
+  const x = (t.clientX - rect.left) / rect.width;
+  const y = (t.clientY - rect.top) / rect.height;
+  setTilt(x,y);
+},{passive:true});
+card.addEventListener("touchend", resetTilt);
+
+/** ===== Typing text (LOOP TERUS, AMAN) ===== **/
+const typingTarget = document.getElementById("typingText");
+const fullText = "Kegiatan untuk menyalurkan kesenangan di badminton dan menjadi berkat buat orang sekitar.";
+
+let i = 0;
+let typingTimer = null;
+
+function typeLoop(){
+  typingTarget.innerHTML =
+    fullText.slice(0, i) + '<span class="cursor">|</span>';
+
+  if (i < fullText.length){
+    i++;
+    typingTimer = setTimeout(typeLoop, 28);
+  } else {
+    // jeda sebelum mengulang
+    setTimeout(() => {
+      i = 0;
+      typeLoop();
+    }, 1800); // ⏱️ delay sebelum ulang
+  }
+}
+
+// pastikan tidak dobel
+if (!window.__TYPING_LOOP__) {
+  window.__TYPING_LOOP__ = true;
+  typeLoop();
+}
+
+/** ===== Glow foto adaptif saat toggle mode ===== **/
+function refreshPhotoGlow(){
+  // hanya agar transisi halus, glow sudah di CSS,
+  // tapi ini bikin "iOS feel" saat mode berubah
+  photoFrame.style.filter = "brightness(1.02)";
+  setTimeout(()=> photoFrame.style.filter = "", 220);
+}
+themeToggle.addEventListener("click", refreshPhotoGlow);
+</script>
+<script>
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("sw.js")
+    .then(() => console.log("Offline ready"))
+    .catch(err => console.error("SW error", err));
+}
+</script>
+</body>
+<div class="copyright">
+  © 2025
+  <a href="https://scard-project.id" target="_blank">Badminton Achi</a>
+</div>
+<script>
+if ("serviceWorker" in navigator && location.protocol !== "file:") {
+  navigator.serviceWorker.register("sw.js");
+}
+</script>
+
+<!-- ===============================
+     🔥 PWA LOGIC FINAL (STABIL)
+     =============================== -->
+<script>
+let deferredPrompt;
+const installBox = document.getElementById("pwaInstallBox");
+const installBtn = document.getElementById("btnInstallPWA");
+const installHint = document.getElementById("installHint");
+
+function isInstalled() {
+  return (
+    window.matchMedia("(display-mode: standalone)").matches ||
+    window.navigator.standalone === true
+  );
+}
+
+const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+
+/* SUDAH TERINSTALL */
+if (isInstalled()) {
+  installBox.style.display = "none";
+}
+
+/* iOS SAFARI */
+if (isIOS && !isInstalled()) {
+  installBox.style.display = "block";
+  installBtn.style.display = "none";
+  installHint.innerHTML = 'iPhone: tap <b>Share</b> → <b>Add to Home Screen</b>';
+}
+
+/* ANDROID / DESKTOP */
+window.addEventListener("beforeinstallprompt", (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+
+  if (!isInstalled() && !isIOS) {
+    installBox.style.display = "block";
+  }
+});
+
+installBtn?.addEventListener("click", async () => {
+  if (!deferredPrompt) return;
+  deferredPrompt.prompt();
+  const res = await deferredPrompt.userChoice;
+  if (res.outcome === "accepted") installBox.style.display = "none";
+  deferredPrompt = null;
+});
+
+window.addEventListener("appinstalled", () => {
+  installBox.style.display = "none";
+});
+</script>
+
+</body><script>
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/sw.js');
+}
+</script>
+</html>
